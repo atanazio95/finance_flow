@@ -1,4 +1,4 @@
-import '../models/transaction_model.dart';
+import '../../models/transaction_model.dart';
 
 // Primeiro definimos o contrato do DataSource
 abstract class ITransactionRemoteDataSource {

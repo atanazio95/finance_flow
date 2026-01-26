@@ -1,11 +1,11 @@
 import 'dart:convert';
-import 'package:finance_flow/features/transactions/data/datasources/remote/transaction_remote_datasource.dart';
+import 'package:finance_flow/features/transactions/data/datasources/transaction_datasource.dart';
 import 'package:finance_flow/features/transactions/data/models/transaction_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const CACHED_TRANSACTIONS_KEY = 'CACHED_TRANSACTIONS';
 
-class TransactionLocalDataSourceImpl implements ITransactionRemoteDataSource {
+class TransactionLocalDataSourceImpl implements ITransactionDataSource {
   // Vamos injetar o SharedPreferences também, para facilitar testes depois
   final SharedPreferences sharedPreferences;
 
