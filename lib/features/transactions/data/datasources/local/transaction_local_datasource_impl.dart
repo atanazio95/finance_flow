@@ -32,6 +32,7 @@ class TransactionLocalDataSourceImpl implements ITransactionDataSource {
   Future<List<TransactionModel>> getTransactions() async {
     // 1. Pega a String bruta salva no celular
     final jsonString = sharedPreferences.getString(CACHED_TRANSACTIONS_KEY);
+    print("DEBUG: Lendo do SharedPreferences: $jsonString");
 
     if (jsonString != null) {
       // 2. Decodifica a String para uma Lista de Objetos (Dynamic)

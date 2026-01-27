@@ -17,5 +17,4 @@ class SaveTransactionEvent extends TransactionEvent {
   List<Object> get props => [transaction];
 }
 
-// Futuramente, quando fizermos a listagem:
-// class GetTransactionsEvent extends TransactionEvent {}
+class GetTransactionsEvent extends TransactionEvent {}
