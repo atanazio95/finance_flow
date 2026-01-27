@@ -1,44 +1,47 @@
 import 'package:finance_flow/features/transactions/domain/repositories/transaction_repository.dart';
-import 'package:finance_flow/features/transactions/presentation/bloc/transaction_bloc.dart';
+import 'package:finance_flow/features/transactions/domain/usecases/get_transaction_usecase.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+// Imports da Feature Transaction
+import 'features/transactions/presentation/bloc/transaction_bloc.dart';
 import 'features/transactions/domain/usecases/save_transaction_usecase.dart';
 import 'features/transactions/data/repositories/transaction_repository_impl.dart';
 import 'features/transactions/data/datasources/transaction_datasource.dart';
 import 'features/transactions/data/datasources/local/transaction_local_datasource_impl.dart';
 
-final sl = GetIt.instance; // sl = Service Locator
+final sl = GetIt.instance;
 
 Future<void> init() async {
   //! Features - Transactions
 
   // Bloc
-  // Factory = cria um novo sempre que solicitada (necessário para fechar streams)
+  // ATENÇÃO: Atualize aqui para passar os DOIS UseCases
   sl.registerFactory(
     () => TransactionBloc(
-      saveTransactionUseCase: sl(), // O GetIt busca o UseCase registrado abaixo
+      saveTransactionUseCase: sl(), // Já existia
+      getTransactionsUseCase:
+          sl(), // <--- NOVO: O GetIt busca o usecase de baixo
     ),
   );
 
-  // Use Case
-  // LazySingleton = cria uma vez só e mantém na memória
+  // Use Cases
   sl.registerLazySingleton(() => SaveTransactionUseCase(sl()));
+  sl.registerLazySingleton(
+    () => GetTransactionsUseCase(sl()),
+  ); // <--- NOVO: Registrando o Get
 
-  // Repository
-  // Registramos a Interface, mas entregamos a Implementação
+  // Repository (Não muda nada)
   sl.registerLazySingleton<ITransactionRepository>(
     () => TransactionRepositoryImpl(dataSource: sl()),
   );
 
-  // Data Source
-  // Registramos a Interface, mas entregamos a Implementação Local
+  // Data Source (Não muda nada)
   sl.registerLazySingleton<ITransactionDataSource>(
     () => TransactionLocalDataSourceImpl(sharedPreferences: sl()),
   );
 
   //! External
-  // Coisas de fora do app (SharedPreferences, Firebase, HTTP Client)
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPreferences);
 }

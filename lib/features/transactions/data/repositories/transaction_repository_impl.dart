@@ -21,6 +21,7 @@ class TransactionRepositoryImpl implements ITransactionRepository {
   // --- 2. Implementação do GET (Que estava faltando) ---
   @override
   Future<List<TransactionEntity>> getTransactions() async {
+    print("DEBUG: Repository chamado! Chamando DataSource...");
     // Chama o dataSource (seja ele local ou remoto)
     final result = await dataSource.getTransactions();
 
