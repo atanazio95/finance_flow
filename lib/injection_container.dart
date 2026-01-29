@@ -1,4 +1,5 @@
 import 'package:finance_flow/features/transactions/domain/repositories/transaction_repository.dart';
+import 'package:finance_flow/features/transactions/domain/usecases/delete_transaction_usecase.dart';
 import 'package:finance_flow/features/transactions/domain/usecases/get_transaction_usecase.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,14 +23,14 @@ Future<void> init() async {
       saveTransactionUseCase: sl(), // Já existia
       getTransactionsUseCase:
           sl(), // <--- NOVO: O GetIt busca o usecase de baixo
+      deleteTransactionUseCase: sl(),
     ),
   );
 
   // Use Cases
   sl.registerLazySingleton(() => SaveTransactionUseCase(sl()));
-  sl.registerLazySingleton(
-    () => GetTransactionsUseCase(sl()),
-  ); // <--- NOVO: Registrando o Get
+  sl.registerLazySingleton(() => GetTransactionsUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteTransactionUsecase(sl()));
 
   // Repository (Não muda nada)
   sl.registerLazySingleton<ITransactionRepository>(
@@ -37,7 +38,7 @@ Future<void> init() async {
   );
 
   // Data Source (Não muda nada)
-  sl.registerLazySingleton<ITransactionDataSource>(
+  sl.registerLazySingleton<TransactionLocalDataSourceImpl>(
     () => TransactionLocalDataSourceImpl(sharedPreferences: sl()),
   );
 
