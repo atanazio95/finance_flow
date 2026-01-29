@@ -1,71 +1,83 @@
 import 'package:finance_flow/features/transactions/domain/usecases/get_transaction_usecase.dart';
 import 'package:finance_flow/features/transactions/domain/usecases/save_transaction_usecase.dart';
+import 'package:finance_flow/features/transactions/domain/usecases/delete_transaction_usecase.dart'; // <--- IMPORT NOVO
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-// Imports dos UseCases
 
 import 'transaction_event.dart';
 import 'transaction_state.dart';
 
 class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
-  // As duas ferramentas que o Bloc precisa
+  // Agora são TRÊS ferramentas
   final SaveTransactionUseCase saveTransactionUseCase;
   final GetTransactionsUseCase getTransactionsUseCase;
+  final DeleteTransactionUsecase
+  deleteTransactionUseCase; // <--- NOVA DEPENDÊNCIA
 
   TransactionBloc({
     required this.saveTransactionUseCase,
     required this.getTransactionsUseCase,
+    required this.deleteTransactionUseCase, // <--- Recebe no construtor
   }) : super(TransactionInitial()) {
-    print("DEBUG VIDA: O Construtor do TransactionBloc foi iniciado!");
     // Registra os handlers
     on<SaveTransactionEvent>(_onSaveTransaction);
     on<GetTransactionsEvent>(_onGetTransactions);
+    on<DeleteTransactionEvent>(_onDeleteTransaction); // <--- REGISTRA O DELETE
   }
 
-  @override
-  void onEvent(TransactionEvent event) {
-    super.onEvent(event);
-    print("DEBUG GLOBAL: O BLoC ouviu um evento chegando: $event");
-  }
+  // ... (onSaveTransaction e onGetTransactions continuam IGUAIS) ...
+  // Vou omitir aqui para economizar espaço, mas mantenha os códigos que você já tem.
+  // ...
 
-  // Lógica de Salvar
+  // --- Lógica de Salvar (Mantive aqui para referência) ---
   Future<void> _onSaveTransaction(
     SaveTransactionEvent event,
     Emitter<TransactionState> emit,
   ) async {
     emit(TransactionLoading());
-
     try {
-      // 1. Tenta salvar
       await saveTransactionUseCase(event.transaction);
-
-      // 2. Se deu certo, avisa a UI (Sucesso)
       emit(TransactionSuccess());
-
-      // 3. AUTOMATICAMENTE pede para recarregar a lista atualizada
       add(GetTransactionsEvent());
     } catch (e) {
       emit(TransactionError(message: "Erro ao salvar: $e"));
     }
   }
 
-  // Lógica de Buscar
+  // --- Lógica de Buscar (Mantive aqui para referência) ---
   Future<void> _onGetTransactions(
     GetTransactionsEvent event,
     Emitter<TransactionState> emit,
   ) async {
-    print("DEBUG 2: BLoC - Recebi o evento! Chamando UseCase...");
-    // Só mostre loading se a lista estiver vazia ou se quiser bloquear a tela
+    emit(TransactionLoading());
+    try {
+      final list = await getTransactionsUseCase();
+      emit(TransactionLoaded(transactions: list));
+    } catch (e) {
+      emit(TransactionError(message: "Erro ao buscar: $e"));
+    }
+  }
+
+  // --- NOVA LÓGICA: DELETAR ---
+  Future<void> _onDeleteTransaction(
+    DeleteTransactionEvent event,
+    Emitter<TransactionState> emit,
+  ) async {
+    // 1. Loading (opcional, mas bom para evitar cliques duplos)
     emit(TransactionLoading());
 
     try {
-      // 1. Busca a lista no UseCase
-      final list = await getTransactionsUseCase();
+      // 2. Chama o UseCase
+      await deleteTransactionUseCase.delete(event.transaction);
 
-      // 2. Entrega a lista para a UI desenhar
-      emit(TransactionLoaded(transactions: list));
+      // 3. Sucesso (Para mostrar SnackBar se precisar)
+      // Nota: Algumas pessoas preferem não emitir Success no delete,
+      // apenas recarregar direto. Mas emitir Success ajuda no feedback visual.
+      emit(TransactionSuccess());
+
+      // 4. Recarrega a lista atualizada
+      add(GetTransactionsEvent());
     } catch (e) {
-      emit(TransactionError(message: "Erro ao buscar extrato: $e"));
+      emit(TransactionError(message: "Erro ao deletar: $e"));
     }
   }
 }

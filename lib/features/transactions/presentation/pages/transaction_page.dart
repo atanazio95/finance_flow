@@ -1,4 +1,5 @@
 import 'package:finance_flow/features/transactions/domain/entities/transaction_entity.dart';
+import 'package:finance_flow/features/transactions/domain/usecases/delete_transaction_usecase.dart';
 import 'package:finance_flow/features/transactions/presentation/bloc/transaction_bloc.dart';
 import 'package:finance_flow/features/transactions/presentation/bloc/transaction_event.dart';
 import 'package:finance_flow/features/transactions/presentation/bloc/transaction_state.dart';
@@ -53,6 +54,17 @@ class _TransactionPageState extends State<TransactionPage> {
 
     context.read<TransactionBloc>().add(
       SaveTransactionEvent(transaction: transaction),
+    );
+  }
+
+  // Adicione 'BuildContext context' como primeiro parâmetro
+  Future<void> _deleteTransaction(
+    BuildContext context,
+    TransactionEntity transaction,
+  ) async {
+    // Agora usamos o 'context' que veio por parâmetro, não o da classe
+    context.read<TransactionBloc>().add(
+      DeleteTransactionEvent(transaction: transaction),
     );
   }
 
@@ -278,13 +290,30 @@ class _TransactionPageState extends State<TransactionPage> {
               dateString,
               style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
             ),
-            trailing: Text(
-              "R\$ ${transaction.value.toStringAsFixed(2)}",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-                color: isInflow ? Colors.green.shade700 : Colors.red.shade700,
-              ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min, // Ocupa só o espaço necessário
+              children: [
+                // 1. O Valor (Que já existia)
+                Text(
+                  "R\$ ${transaction.value.toStringAsFixed(2)}",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14, // Diminuí um pouco para caber
+                    color: isInflow
+                        ? Colors.green.shade700
+                        : Colors.red.shade700,
+                  ),
+                ),
+                const SizedBox(width: 8), // Espaço entre valor e lixeira
+                // 2. O Botão de Deletar
+                IconButton(
+                  icon: const Icon(Icons.delete_outline, color: Colors.grey),
+                  onPressed: () {
+                    // Sugestão: Adicionar um Dialog de confirmação aqui depois
+                    _deleteTransaction(context, transaction);
+                  },
+                ),
+              ],
             ),
           ),
         );

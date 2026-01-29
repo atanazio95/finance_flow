@@ -18,3 +18,8 @@ class SaveTransactionEvent extends TransactionEvent {
 }
 
 class GetTransactionsEvent extends TransactionEvent {}
+
+class DeleteTransactionEvent extends TransactionEvent {
+  final TransactionEntity transaction;
+  DeleteTransactionEvent({required this.transaction});
+}

@@ -1,4 +1,4 @@
-import 'package:finance_flow/features/transactions/data/datasources/transaction_datasource.dart';
+import 'package:finance_flow/features/transactions/data/datasources/local/transaction_local_datasource_impl.dart';
 import 'package:finance_flow/features/transactions/data/models/transaction_model.dart';
 import 'package:finance_flow/features/transactions/domain/entities/transaction_entity.dart';
 import 'package:finance_flow/features/transactions/domain/repositories/transaction_repository.dart';
@@ -7,7 +7,7 @@ class TransactionRepositoryImpl implements ITransactionRepository {
   // AQUI ESTÁ O SEGREDO:
   // Usamos a Interface 'ITransactionDataSource', não o arquivo 'Local' ou 'Remote' direto.
   // Quem decide se vai ser Local ou Remote é a Injeção de Dependência depois.
-  final ITransactionDataSource dataSource;
+  final TransactionLocalDataSourceImpl dataSource;
 
   TransactionRepositoryImpl({required this.dataSource});
 
